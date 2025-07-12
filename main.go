@@ -10,12 +10,19 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 )
 
+var (
+	// 这些变量会在构建时通过 ldflags 注入
+	version = "dev"
+	commit  = "unknown"
+)
+
 func main() {
 	// Load configuration from environment variables
 	config := pkg.LoadConfig()
 
 	// Print configuration for debugging
 	if config.Debug {
+		fmt.Printf("SOQL MCP Server version: %s (commit: %s)\n", version, commit)
 		config.Print()
 	}
 

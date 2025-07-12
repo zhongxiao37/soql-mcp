@@ -1,0 +1,29 @@
+version: 1
+
+# 构建配置
+builds:
+  - id: soql-mcp
+    # 构建的主要入口文件
+    main: ./main.go
+    # 二进制文件名
+    binary: soql-mcp
+    # 构建标志
+    flags:
+      - -trimpath
+    # ldflags，用于注入版本信息
+    ldflags:
+      - "-s -w"
+      - "-X main.version={{.Env.VERSION}}"
+      - "-X main.commit={{.Env.COMMIT}}"
+    # 目标构建平台
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    # 忽略某些组合（如果某些组合不支持）
+    ignore:
+      - goos: windows
+        goarch: arm64
