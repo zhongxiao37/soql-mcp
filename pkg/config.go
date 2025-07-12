@@ -20,7 +20,7 @@ func LoadConfig() *Config {
 	config := &Config{
 		ServerName:    GetEnvWithDefault("MCP_SERVER_NAME", "Demo 🚀"),
 		ServerVersion: GetEnvWithDefault("MCP_SERVER_VERSION", "1.0.0"),
-		ResourcePath:  GetEnvWithDefault("MCP_RESOURCE_PATH", "/Users/pzhong/Documents/github/soql-mcp/terms.json"),
+		ResourcePath:  GetEnvWithDefault("MCP_RESOURCE_PATH", ""),
 		Debug:         getEnvBool("MCP_DEBUG", false),
 		LogLevel:      GetEnvWithDefault("MCP_LOG_LEVEL", "info"),
 	}
