@@ -2,6 +2,7 @@
 soql
 soql-mcp
 soql-mcp-*
+terms.json
 
 # Go 构建产物
 *.exe
