@@ -13,6 +13,13 @@ type Config struct {
 	ResourcePath  string
 	Debug         bool
 	LogLevel      string
+	// Salesforce configuration
+	SalesforceURL           string
+	SalesforceClientID      string
+	SalesforceClientSecret  string
+	SalesforceUsername      string
+	SalesforcePassword      string
+	SalesforceSecurityToken string
 }
 
 // LoadConfig loads configuration from environment variables
@@ -23,6 +30,13 @@ func LoadConfig() *Config {
 		ResourcePath:  GetEnvWithDefault("MCP_RESOURCE_PATH", ""),
 		Debug:         getEnvBool("MCP_DEBUG", false),
 		LogLevel:      GetEnvWithDefault("MCP_LOG_LEVEL", "info"),
+		// Salesforce configuration
+		SalesforceURL:           GetEnvWithDefault("SALESFORCE_URL", "https://login.salesforce.com"),
+		SalesforceClientID:      GetEnvWithDefault("SALESFORCE_CLIENT_ID", ""),
+		SalesforceClientSecret:  GetEnvWithDefault("SALESFORCE_CLIENT_SECRET", ""),
+		SalesforceUsername:      GetEnvWithDefault("SALESFORCE_USERNAME", ""),
+		SalesforcePassword:      GetEnvWithDefault("SALESFORCE_PASSWORD", ""),
+		SalesforceSecurityToken: GetEnvWithDefault("SALESFORCE_SECURITY_TOKEN", ""),
 	}
 
 	// Validate configuration
@@ -56,6 +70,9 @@ func (c *Config) Print() {
 	fmt.Printf("  Resource Path: %s\n", c.ResourcePath)
 	fmt.Printf("  Debug: %t\n", c.Debug)
 	fmt.Printf("  Log Level: %s\n", c.LogLevel)
+	fmt.Printf("  Salesforce URL: %s\n", c.SalesforceURL)
+	fmt.Printf("  Salesforce Client ID: %s\n", c.SalesforceClientID)
+	fmt.Printf("  Salesforce Username: %s\n", c.SalesforceUsername)
 }
 
 // GetEnvWithDefault returns the value of an environment variable or a default value if not set
