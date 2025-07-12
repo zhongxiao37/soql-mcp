@@ -1,0 +1,36 @@
+name: goreleaser
+
+on:
+  push:
+    tags:
+      - "v*" # triggers only if push new tag version, like `0.8.4` or else
+
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+
+      - name: Run goreleaser
+        uses: goreleaser/goreleaser-action@v6
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          distribution: goreleaser
+          args: release --clean
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary
+          path: dist/soql-mcp_*/soql-mcp-*
