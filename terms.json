@@ -1,0 +1,19 @@
+{
+  "terms": [
+    {
+      "id": "1",
+      "name": "Account",
+      "description": "Account is a company or organization that has a relationship with your business."
+    },
+    {
+      "id": "2",
+      "name": "Contact",
+      "description": "Contact is a person who has a relationship with your business."
+    },
+    {
+      "id": "3",
+      "name": "Lead",
+      "description": "Lead is a potential customer who has shown interest in your business."
+    }
+  ]
+}
