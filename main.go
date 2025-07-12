@@ -28,9 +28,9 @@ func main() {
 	)
 
 	// Add tools
-	s.AddTool(tools.CreateHelloTool(), tools.HelloHandler)
 	s.AddTool(tools.CreateDebugTool(), tools.DebugHandler)
 	s.AddTool(tools.CreateQueryTool(), tools.QueryHandler)
+	s.AddTool(tools.CreateDescribeTool(), tools.DescribeHandler)
 
 	// Add terms resource using the new resources package
 	s.AddResource(resources.CreateTermsResource(config.ResourcePath), resources.TermsResourceHandler)

@@ -41,6 +41,34 @@ type SalesforceErrorResponse struct {
 	Errors           []SalesforceError `json:"errors"`
 }
 
+// SalesforceDescribeField represents a field in Salesforce object describe response
+type SalesforceDescribeField struct {
+	Name           string                   `json:"name"`
+	Label          string                   `json:"label"`
+	Type           string                   `json:"type"`
+	Length         int                      `json:"length"`
+	Required       bool                     `json:"required"`
+	Unique         bool                     `json:"unique"`
+	Updateable     bool                     `json:"updateable"`
+	Createable     bool                     `json:"createable"`
+	DefaultValue   interface{}              `json:"defaultValue"`
+	PicklistValues []map[string]interface{} `json:"picklistValues"`
+}
+
+// SalesforceDescribeResponse represents the response from Salesforce describe API
+type SalesforceDescribeResponse struct {
+	Name        string                    `json:"name"`
+	Label       string                    `json:"label"`
+	LabelPlural string                    `json:"labelPlural"`
+	KeyPrefix   string                    `json:"keyPrefix"`
+	Custom      bool                      `json:"custom"`
+	Createable  bool                      `json:"createable"`
+	Deletable   bool                      `json:"deletable"`
+	Updateable  bool                      `json:"updateable"`
+	Queryable   bool                      `json:"queryable"`
+	Fields      []SalesforceDescribeField `json:"fields"`
+}
+
 // SalesforceClient handles Salesforce API operations
 type SalesforceClient struct {
 	config *Config
@@ -168,6 +196,54 @@ func (sf *SalesforceClient) Query(query string) (*SalesforceQueryResponse, error
 	return &result, nil
 }
 
+// Describe gets the metadata for a Salesforce object
+func (sf *SalesforceClient) Describe(objectType string) (*SalesforceDescribeResponse, error) {
+	if sf.auth == nil {
+		return nil, fmt.Errorf("not authenticated, call Authenticate() first")
+	}
+
+	// Prepare describe URL
+	describeURL := fmt.Sprintf("%s/services/data/v57.0/sobjects/%s/describe", sf.auth.InstanceURL, objectType)
+
+	// Create HTTP request
+	req, err := http.NewRequest("GET", describeURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %v", err)
+	}
+
+	// Set authorization header
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sf.auth.AccessToken))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Make request
+	client := &http.Client{Timeout: 60 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute describe: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read describe response: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		var errorResp SalesforceErrorResponse
+		if err := json.Unmarshal(body, &errorResp); err == nil && len(errorResp.Errors) > 0 {
+			return nil, fmt.Errorf("describe failed: %s - %s", errorResp.Errors[0].ErrorCode, errorResp.Errors[0].Message)
+		}
+		return nil, fmt.Errorf("describe failed with status %d: %s", resp.StatusCode, string(body))
+	}
+
+	var result SalesforceDescribeResponse
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse describe response: %v", err)
+	}
+
+	return &result, nil
+}
+
 // FormatAsTable formats query results as a simple table
 func FormatAsTable(result *SalesforceQueryResponse) string {
 	if result.TotalSize == 0 {
@@ -196,6 +272,46 @@ func FormatAsTable(result *SalesforceQueryResponse) string {
 
 // FormatAsJSON formats query results as JSON
 func FormatAsJSON(result *SalesforceQueryResponse) string {
+	jsonBytes, _ := json.MarshalIndent(result, "", "  ")
+	return string(jsonBytes)
+}
+
+// FormatDescribeAsTable formats describe results as a readable table
+func FormatDescribeAsTable(result *SalesforceDescribeResponse) string {
+	var buffer bytes.Buffer
+
+	// Object information
+	buffer.WriteString(fmt.Sprintf("Object: %s (%s)\n", result.Name, result.Label))
+	buffer.WriteString(fmt.Sprintf("Label Plural: %s\n", result.LabelPlural))
+	buffer.WriteString(fmt.Sprintf("Key Prefix: %s\n", result.KeyPrefix))
+	buffer.WriteString(fmt.Sprintf("Custom: %t\n", result.Custom))
+	buffer.WriteString(fmt.Sprintf("Permissions: Create=%t, Update=%t, Delete=%t, Query=%t\n",
+		result.Createable, result.Updateable, result.Deletable, result.Queryable))
+	buffer.WriteString(strings.Repeat("=", 80) + "\n")
+	buffer.WriteString("FIELDS:\n")
+	buffer.WriteString(strings.Repeat("=", 80) + "\n")
+
+	// Field headers
+	buffer.WriteString(fmt.Sprintf("%-30s %-20s %-15s %-10s %-8s %-8s\n",
+		"Field Name", "Label", "Type", "Length", "Required", "Unique"))
+	buffer.WriteString(strings.Repeat("-", 80) + "\n")
+
+	// Field details
+	for _, field := range result.Fields {
+		length := ""
+		if field.Length > 0 {
+			length = fmt.Sprintf("%d", field.Length)
+		}
+
+		buffer.WriteString(fmt.Sprintf("%-30s %-20s %-15s %-10s %-8t %-8t\n",
+			field.Name, field.Label, field.Type, length, field.Required, field.Unique))
+	}
+
+	return buffer.String()
+}
+
+// FormatDescribeAsJSON formats describe results as JSON
+func FormatDescribeAsJSON(result *SalesforceDescribeResponse) string {
 	jsonBytes, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonBytes)
 }
