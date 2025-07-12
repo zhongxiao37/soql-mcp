@@ -37,11 +37,10 @@ func DescribeHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	// Load configuration
 	config := pkg.LoadConfig()
 
-	// Create Salesforce client
-	sfClient := pkg.NewSalesforceClient(config)
-
-	// Authenticate with Salesforce
-	if err := sfClient.Authenticate(); err != nil {
+	// Get authenticated Salesforce client (with connection reuse)
+	clientManager := pkg.GetClientManager(config)
+	sfClient, err := clientManager.GetClient()
+	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("Authentication failed: %v", err)), nil
 	}
 
