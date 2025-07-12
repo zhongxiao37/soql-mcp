@@ -6,15 +6,25 @@ import (
 	"net/url"
 	"os"
 
+	"soql-mcp/pkg"
+
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 
 func main() {
+	// Load configuration from environment variables
+	config := pkg.LoadConfig()
+
+	// Print configuration for debugging
+	if config.Debug {
+		config.Print()
+	}
+
 	// Create a new MCP server with resources capability
 	s := server.NewMCPServer(
-		"Demo 🚀",
-		"1.0.0",
+		config.ServerName,
+		config.ServerVersion,
 		server.WithResourceCapabilities(true, true),
 		server.WithToolCapabilities(true),
 	)
@@ -31,9 +41,17 @@ func main() {
 	// Add tool handler
 	s.AddTool(tool, helloHandler)
 
-	// Add a static resource
+	// Add debug tool to return config information
+	debugTool := mcp.NewTool("debug",
+		mcp.WithDescription("返回服务器配置信息"),
+	)
+
+	// Add debug tool handler
+	s.AddTool(debugTool, debugHandler)
+
+	// Add a static resource using environment variable
 	resource := mcp.NewResource(
-		"file:///Users/pzhong/Documents/github/soql-mcp/terms.json",
+		fmt.Sprintf("file://%s", config.ResourcePath),
 		"terms",
 		mcp.WithResourceDescription("Terms"),
 		mcp.WithMIMEType("application/json"),
@@ -53,6 +71,21 @@ func helloHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallTo
 	}
 
 	return mcp.NewToolResultText(fmt.Sprintf("Hello, %s!", name)), nil
+}
+
+func debugHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// Load current config
+	config := pkg.LoadConfig()
+
+	// Format config information as a string
+	configInfo := fmt.Sprintf("服务器配置信息:\n")
+	configInfo += fmt.Sprintf("  服务器名称: %s\n", config.ServerName)
+	configInfo += fmt.Sprintf("  服务器版本: %s\n", config.ServerVersion)
+	configInfo += fmt.Sprintf("  资源路径: %s\n", config.ResourcePath)
+	configInfo += fmt.Sprintf("  调试模式: %t\n", config.Debug)
+	configInfo += fmt.Sprintf("  日志级别: %s\n", config.LogLevel)
+
+	return mcp.NewToolResultText(configInfo), nil
 }
 
 // Handler for static terms resource
