@@ -26,6 +26,39 @@ SELECT Id, Name, Email FROM Contact WHERE Email != NULL LIMIT 5
 SELECT Name, StageName, Amount FROM Opportunity WHERE StageName = 'Closed Won'
 ```
 
+### describe
+
+Describe Salesforce objects to get their metadata, fields, and properties.
+
+**Parameters:**
+
+- `object` (required): The Salesforce object name to describe (e.g., Account, Contact, Opportunity)
+- `format` (optional): Output format: 'json' or 'table' (default: table)
+
+**Example usage:**
+
+```
+object: Account
+format: table
+```
+
+```
+object: Contact
+format: json
+```
+
+### debug
+
+Return server configuration information for troubleshooting purposes.
+
+**Parameters:**
+
+No parameters required.
+
+**Usage:**
+
+This tool displays current server configuration including server name, version, resource path, debug mode status, and log level.
+
 ## Configuration
 
 Set the following environment variables to configure the server:
