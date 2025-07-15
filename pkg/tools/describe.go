@@ -3,9 +3,9 @@ package tools
 import (
 	"context"
 	"fmt"
-	"soql-mcp/pkg"
 
 	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/zhongxiao37/soql-mcp/pkg"
 )
 
 // CreateDescribeTool creates a new Salesforce object describe tool

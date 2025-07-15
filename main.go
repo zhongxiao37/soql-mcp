@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"soql-mcp/pkg"
-	"soql-mcp/pkg/resources"
-	"soql-mcp/pkg/tools"
+	"github.com/zhongxiao37/soql-mcp/pkg"
+	"github.com/zhongxiao37/soql-mcp/pkg/resources"
+	"github.com/zhongxiao37/soql-mcp/pkg/tools"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/spf13/cobra"

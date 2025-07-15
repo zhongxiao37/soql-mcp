@@ -1,4 +1,4 @@
-module soql-mcp
+module github.com/zhongxiao37/soql-mcp
 
 go 1.23
 
