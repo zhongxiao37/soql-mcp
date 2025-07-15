@@ -2,15 +2,43 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"soql-mcp/pkg"
 	"soql-mcp/pkg/resources"
 	"soql-mcp/pkg/tools"
 
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/spf13/cobra"
+)
+
+var (
+	versionFlag bool
 )
 
 func main() {
+	var rootCmd = &cobra.Command{
+		Use:   "soql-mcp",
+		Short: "SOQL MCP Server",
+		Long:  "SOQL MCP Server for Salesforce object queries",
+		Run: func(cmd *cobra.Command, args []string) {
+			if versionFlag {
+				fmt.Printf("soql-mcp version %s (commit: %s, build date: %s)\n", pkg.Version, pkg.Commit, pkg.BuildDate)
+				os.Exit(0)
+			}
+			runServer()
+		},
+	}
+
+	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Print version information")
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func runServer() {
 	// Load configuration from environment variables
 	config := pkg.LoadConfig()
 

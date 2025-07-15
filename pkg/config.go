@@ -6,10 +6,19 @@ import (
 	"strconv"
 )
 
+// Build-time variables set via ldflags
+var (
+	Version   = "" // Default version for development
+	Commit    = "" // Default commit hash
+	BuildDate = "" // Default build time
+)
+
 // Config holds all configuration values
 type Config struct {
 	ServerName    string
 	ServerVersion string
+	Commit        string
+	BuildDate     string
 	ResourcePath  string
 	Debug         bool
 	LogLevel      string
@@ -26,7 +35,9 @@ type Config struct {
 func LoadConfig() *Config {
 	config := &Config{
 		ServerName:    GetEnvWithDefault("MCP_SERVER_NAME", "Demo 🚀"),
-		ServerVersion: GetEnvWithDefault("MCP_SERVER_VERSION", "1.0.0"),
+		ServerVersion: GetEnvWithDefault("MCP_SERVER_VERSION", Version),
+		Commit:        GetEnvWithDefault("MCP_COMMIT", Commit),
+		BuildDate:     GetEnvWithDefault("MCP_BUILD_DATE", BuildDate),
 		ResourcePath:  GetEnvWithDefault("MCP_RESOURCE_PATH", ""),
 		Debug:         getEnvBool("MCP_DEBUG", false),
 		LogLevel:      GetEnvWithDefault("MCP_LOG_LEVEL", "info"),
@@ -67,6 +78,7 @@ func (c *Config) Print() {
 	fmt.Printf("Configuration:\n")
 	fmt.Printf("  Server Name: %s\n", c.ServerName)
 	fmt.Printf("  Server Version: %s\n", c.ServerVersion)
+	fmt.Printf("  Commit: %s\n", c.Commit)
 	fmt.Printf("  Resource Path: %s\n", c.ResourcePath)
 	fmt.Printf("  Debug: %t\n", c.Debug)
 	fmt.Printf("  Log Level: %s\n", c.LogLevel)
